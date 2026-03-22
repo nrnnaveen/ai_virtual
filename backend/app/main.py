@@ -24,6 +24,7 @@ Message protocol (server → browser):
 """
 
 import json
+import os
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,11 +33,28 @@ from .pipeline import DigitalHumanPipeline
 
 app = FastAPI(title="Digital Human API", version="1.0.0")
 
-# Allow any localhost origin (any port) so Vite port-drift (5173, 5174…)
-# never blocks the WebSocket connection. Replace with your domain in production.
+# CORS origins are configurable via the ALLOWED_ORIGINS environment variable
+# so that production deployments can restrict access to their own domains.
+#
+# Local development default: allow all localhost origins (any port) so Vite
+# port-drift (5173, 5174…) never blocks the WebSocket connection.
+#
+# Production example (set in Render / Docker env):
+#   ALLOWED_ORIGINS=https://ai-virtual-frontend.onrender.com
+_env_origins = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,http://localhost:3000",
+)
+ALLOWED_ORIGINS = [o.strip() for o in _env_origins.split(",") if o.strip()]
+
+# Always permit plain localhost patterns for local development convenience
+# even when ALLOWED_ORIGINS is overridden with a production value.
+_LOCALHOST_REGEX = r"http://localhost(:\d+)?|http://127\.0\.0\.1(:\d+)?"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"http://localhost(:\d+)?|http://127\.0\.0\.1(:\d+)?",
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=_LOCALHOST_REGEX,
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
