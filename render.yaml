@@ -1,6 +1,20 @@
-# Updated render.yaml
+# This is a complete Render deployment configuration for both backend and frontend services.
 
 services:
-  backend:
-    buildCommand: 'pip install -r backend/requirements.txt'
-    startCommand: 'python -m app.main'
+  - type: web
+    name: backend
+    env: python
+    plan: free
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: MY_ENV_VAR
+        value: my_value
+
+  - type: web
+    name: frontend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start
