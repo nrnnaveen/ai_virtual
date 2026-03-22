@@ -9,14 +9,24 @@ services:
       - "8000:8000"
     env_file:
       - ./backend/.env
+    environment:
+      # Override ALLOWED_ORIGINS to include the frontend container URL.
+      # Add any extra production origins separated by commas.
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:8000}
     restart: unless-stopped
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # Passed as a build-arg so Vite can inline it at build time.
+        # In production set VITE_WS_URL to your backend WebSocket URL.
+        VITE_WS_URL: ${VITE_WS_URL:-}
     ports:
       - "5173:80"
     depends_on:
       - backend
     restart: unless-stopped
+

@@ -1,0 +1,19 @@
+# Node artefacts
+node_modules/
+npm-debug.log*
+
+# Build output (rebuilt inside Docker)
+dist/
+
+# Environment files (never bake secrets into the image)
+.env
+.env.*
+!.env.example
+
+# Git metadata
+.git/
+.gitignore
+
+# Editor / OS files
+.DS_Store
+*.swp
