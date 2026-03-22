@@ -1,51 +1,6 @@
-# render.yaml – One-click deployment configuration for Render.com
-# Docs: https://render.com/docs/blueprint-spec
-#
-# Usage:
-#   1. Push this file to the root of your GitHub repository.
-#   2. In Render, click "New +" → "Blueprint" and connect your repo.
-#   3. Render will auto-detect this file and create both services.
-#   4. Fill in the secret environment variables when prompted.
+# Updated render.yaml
 
 services:
-  # ── Backend (FastAPI) ──────────────────────────────────────────────────────
-  - type: web
-    name: ai-virtual-backend
-    runtime: python
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
-    healthCheckPath: /health
-    envVars:
-      # Required – fill these in via Render's dashboard (never commit real keys)
-      - key: ANTHROPIC_API_KEY
-        sync: false
-      - key: DEEPGRAM_API_KEY
-        sync: false
-      - key: ELEVENLABS_API_KEY
-        sync: false
-      # Set after the frontend is deployed, e.g.:
-      #   ALLOWED_ORIGINS=https://ai-virtual-frontend.onrender.com
-      - key: ALLOWED_ORIGINS
-        sync: false
-      # Optional – used for docs/hints; defaults to localhost
-      - key: BACKEND_URL
-        sync: false
-
-  # ── Frontend (React + Vite static site) ───────────────────────────────────
-  - type: web
-    name: ai-virtual-frontend
-    runtime: node
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    # Serve the Vite production bundle with `npm run preview`.
-    # For a zero-downtime static-only deployment consider Render's Static Site
-    # service type instead (change `type: web` → `type: static` and set
-    # `staticPublishPath: dist`).
-    startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
-    envVars:
-      # Set this to the WebSocket URL of the backend service above, e.g.:
-      #   VITE_WS_URL=wss://ai-virtual-backend.onrender.com/ws
-      # This value is embedded at build time by Vite.
-      - key: VITE_WS_URL
-        sync: false
+  backend:
+    buildCommand: 'pip install -r backend/requirements.txt'
+    startCommand: 'python -m app.main'
