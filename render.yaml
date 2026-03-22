@@ -1,20 +1,30 @@
-# This is a complete Render deployment configuration for both backend and frontend services.
-
 services:
   - type: web
-    name: backend
+    name: ai-virtual-backend
     env: python
     plan: free
-    runtime: python
+    rootDir: backend
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn backend:app --host 0.0.0.0 --port 10000
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: MY_ENV_VAR
-        value: my_value
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DEEPGRAM_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://ai-virtual-frontend.onrender.com
+      - key: BACKEND_URL
+        value: https://ai-virtual-backend.onrender.com
 
   - type: web
-    name: frontend
+    name: ai-virtual-frontend
     env: node
     plan: free
-    buildCommand: npm install
-    startCommand: npm run start
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: VITE_WS_URL
+        value: wss://ai-virtual-backend.onrender.com/ws
